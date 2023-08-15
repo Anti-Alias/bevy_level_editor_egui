@@ -1,0 +1,19 @@
+[package]
+name = "bevy_level_editor_egui"
+version = "0.6.1"
+edition = "2021"
+description = "A very simple editor for arranging entities in a scene."
+
+[dependencies]
+bevy = { version = "0.11", features = ["dynamic_linking"] }
+bevy-inspector-egui = "0.19.0"
+bevy_egui = "0.21.0"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[toolchain]
+channel = "nightly"
