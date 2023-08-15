@@ -5,7 +5,7 @@ use bevy_inspector_egui::DefaultInspectorConfigPlugin;
 use bevy_inspector_egui::bevy_egui::{egui, EguiContext, EguiPlugin};
 
 use crate::PrefabGroups;
-use crate::resources::{ResourcesPlugin, EnabledPlugins};
+use crate::{ResourcesPlugin, EnabledPlugins};
 
 
 /// Plugin that adds an egui-based level editor.
