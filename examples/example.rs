@@ -7,22 +7,5 @@ fn main() {
             DefaultPlugins,
             EditorPlugin::default()
         ))
-        .add_systems(Startup, startup)
         .run();
-}
-
-fn startup(mut prefab_groups: ResMut<PrefabGroups>) {
-
-    let mut lights = PrefabGroup::new("Lights");
-    lights.add(PointLightPrefab);
-    
-    let mut shapes = PrefabGroup::new("Shapes");
-    shapes
-        .add(PlanePrefab)
-        .add(CubePrefab)
-        .add(PointLightPrefab);
-
-    prefab_groups
-        .add(lights)
-        .add(shapes);
 }

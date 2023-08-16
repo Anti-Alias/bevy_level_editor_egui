@@ -112,7 +112,6 @@ fn control_flycam(
             trans.translation += zoom;
         }
 
-
         // Moves camera
         let far = cam.direction_xz();
         let up = Vec3::Y;

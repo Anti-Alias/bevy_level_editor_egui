@@ -4,8 +4,7 @@ use bevy_egui::egui::Ui;
 use bevy_inspector_egui::DefaultInspectorConfigPlugin;
 use bevy_inspector_egui::bevy_egui::{egui, EguiContext, EguiPlugin};
 
-use crate::{PrefabGroups, FlycamPlugin, Flycam};
-use crate::{ResourcesPlugin, EnabledPlugins};
+use crate::*;
 
 
 /// Plugin that adds an egui-based level editor.
@@ -26,6 +25,7 @@ impl Plugin for EditorPlugin {
         app.insert_resource(self.config.clone());
         app.init_resource::<PrefabGroups>();
         app.add_systems(Startup, startup);
+        app.add_systems(Startup, setup_builtin_prefabs);
         app.add_systems(Update, render_ui);
     }
 }
@@ -51,8 +51,24 @@ fn startup(mut commands: Commands) {
             ..default()
         },
         Flycam::default()
-    ));
+    ));   
+}
+
+fn setup_builtin_prefabs(mut prefab_groups: ResMut<PrefabGroups>) {
+
+    let mut lights = PrefabGroup::new("Lights");
+    lights
+        .add(PointLightPrefab)
+        .add(DirectionalLightPrefab);
     
+    let mut shapes = PrefabGroup::new("Shapes");
+    shapes
+        .add(PlanePrefab)
+        .add(CubePrefab);
+
+    prefab_groups
+        .add(lights)
+        .add(shapes);
 }
 
 fn render_ui(world: &mut World) {
