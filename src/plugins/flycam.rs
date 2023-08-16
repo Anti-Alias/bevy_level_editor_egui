@@ -1,3 +1,5 @@
+use std::f32::consts::FRAC_PI_2;
+
 use bevy::input::mouse::{MouseMotion, MouseScrollUnit, MouseWheel};
 use bevy::prelude::*;
 
@@ -79,6 +81,7 @@ fn control_flycam(
     mut mouse_wheel_events: EventReader<MouseWheel>,
     mut flycams: Query<(&mut Transform, &mut Flycam)>
 ) {
+    const EPS: f32 = 0.01;
     let delta = time.delta_seconds();
 
     for (mut trans, mut cam) in &mut flycams {
@@ -89,7 +92,13 @@ fn control_flycam(
                 let theta = -LOOK_SCALE * ev.delta.x * cam.look_sensitivity;
                 cam.yaw += theta;
                 let theta = -LOOK_SCALE * ev.delta.y * cam.look_sensitivity;
-                cam.pitch += theta ;
+                cam.pitch += theta;
+                if cam.pitch > FRAC_PI_2-EPS {
+                    cam.pitch = FRAC_PI_2-EPS;
+                }
+                else if cam.pitch < -FRAC_PI_2+EPS {
+                    cam.pitch = -FRAC_PI_2+EPS;
+                }
             };
         }
 
