@@ -4,12 +4,15 @@ use bevy_egui::egui::Ui;
 use bevy_inspector_egui::DefaultInspectorConfigPlugin;
 use bevy_inspector_egui::bevy_egui::{egui, EguiContext, EguiPlugin};
 
-use crate::PrefabGroups;
+use crate::{PrefabGroups, FlycamPlugin, Flycam};
 use crate::{ResourcesPlugin, EnabledPlugins};
 
 
 /// Plugin that adds an egui-based level editor.
-pub struct EditorPlugin;
+#[derive(Default)]
+pub struct EditorPlugin {
+    pub config: EditorConfig
+}
 impl Plugin for EditorPlugin {
     fn build(&self, app: &mut App) {
         if !app.is_plugin_added::<EguiPlugin>() {
@@ -18,18 +21,37 @@ impl Plugin for EditorPlugin {
         app.add_plugins((
             DefaultInspectorConfigPlugin,
             ResourcesPlugin::<AmbientLight>::default(),
+            FlycamPlugin
         ));
+        app.insert_resource(self.config.clone());
         app.init_resource::<PrefabGroups>();
         app.add_systems(Startup, startup);
         app.add_systems(Update, render_ui);
     }
 }
 
+/// Config for the [`EditorPlugin`]
+#[derive(Resource, Clone, Debug)]
+pub struct EditorConfig {
+    pub spawn_distance: f32
+}
+
+impl Default for EditorConfig {
+    fn default() -> Self {
+        Self {
+            spawn_distance: 10.0
+        }
+    }
+}
+
 fn startup(mut commands: Commands) {
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0.0, 6., 12.0).looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
-        ..default()
-    });
+    commands.spawn((
+        Camera3dBundle {
+            transform: Transform::from_xyz(0.0, 4.0, 10.0),
+            ..default()
+        },
+        Flycam::default()
+    ));
     
 }
 
@@ -69,7 +91,8 @@ fn inspector(world: &mut World, ui: &mut Ui) {
 
 
 fn prefabs(world: &mut World, ui: &mut Ui) {
-    let prefab_groups: &PrefabGroups = world.get_resource().expect("PrefabGroups resource not found");
+    
+    let prefab_groups: &PrefabGroups = world.get_resource().unwrap();
 
     // Heading    
     ui.spacing_mut().item_spacing.y = 10.0;
@@ -90,6 +113,9 @@ fn prefabs(world: &mut World, ui: &mut Ui) {
 
     // Spawn entity if prefab was selected.
     if let Some(prefab_selected) = prefab_selected {
-        prefab_selected.spawn(world);
+        let spawn_distance = world.resource::<EditorConfig>().spawn_distance;
+        let mut camera_query = world.query::<(&Transform, &Flycam)>();
+        let (cam_transf, cam_fly) = camera_query.get_single(world).unwrap();
+        prefab_selected.spawn(world, cam_transf.translation + cam_fly.direction() * spawn_distance);
     }
 }

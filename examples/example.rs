@@ -5,7 +5,7 @@ fn main() {
     App::new()
         .add_plugins((
             DefaultPlugins,
-            EditorPlugin
+            EditorPlugin::default()
         ))
         .add_systems(Startup, startup)
         .run();

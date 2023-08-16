@@ -5,7 +5,7 @@ use bevy::prelude::*;
 /// An object that can spawn an [`Entity`].
 pub trait Prefab: Send + Sync + 'static {
     fn name(&self) -> &str;
-    fn spawn(&self, world: &mut World);
+    fn spawn(&self, world: &mut World, location: Vec3);
 }
 
 /// A grouping of related prefabs.
